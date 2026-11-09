@@ -30,4 +30,5 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e '.[dev]'
-      - run: RLBENCH_DOCKER_TESTS=1 pytest -v tests/test_docker.py
+      # Prints ::error:: annotations for any invalid task, so failures show on the commit.
+      - run: rlbench validate --sandbox docker

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -28,7 +29,14 @@ def cmd_list(tasks: list[Task], _args) -> int:
     return 0
 
 
+def github_annotation(title: str, message: str) -> str:
+    """A workflow command that GitHub Actions shows as an error on the commit."""
+    escaped = message[-4000:].replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    return f"::error title={title}::{escaped}"
+
+
 def cmd_validate(tasks: list[Task], args) -> int:
+    in_actions = os.environ.get("GITHUB_ACTIONS") == "true"
     failures = 0
     for t in tasks:
         problems = validate_task(t, args.sandbox, args.images_dir)
@@ -37,6 +45,8 @@ def cmd_validate(tasks: list[Task], args) -> int:
             print(f"FAIL  {t.id}")
             for p in problems:
                 print("      " + p.replace("\n", "\n      "))
+                if in_actions:
+                    print(github_annotation(f"Task {t.id} is invalid ({args.sandbox})", p))
         else:
             print(f"ok    {t.id}  (unsolved as shipped, golden fix passes)")
     print(f"\n{len(tasks) - failures}/{len(tasks)} tasks valid")

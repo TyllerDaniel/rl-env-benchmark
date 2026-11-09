@@ -37,3 +37,10 @@ def test_grader_is_not_shipped_in_repo(task):
 @pytest.mark.parametrize("task", ALL_TASKS, ids=lambda t: t.id)
 def test_task_is_valid_locally(task):
     assert validate_task(task, "local", IMAGES_DIR) == []
+
+
+def test_github_annotation_escapes_newlines():
+    from rlbench.cli import github_annotation
+
+    line = github_annotation("Task x", "first\nsecond 100%")
+    assert line == "::error title=Task x::first%0Asecond 100%25"
