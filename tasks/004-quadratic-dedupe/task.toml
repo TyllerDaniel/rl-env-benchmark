@@ -1,0 +1,15 @@
+id = "004-quadratic-dedupe"
+title = "Event ingestion job times out on large batches"
+category = "performance"
+difficulty = "medium"
+image = "python"
+timeout_s = 90
+prompt = """
+The nightly ingestion job started timing out once batches grew past ~100k
+events. Profiling points at `dedupe_events` in `ingest/dedupe.py`.
+
+Make it fast enough for batches of several hundred thousand events (well under
+a second on one core) without changing its behaviour: it must keep the first
+occurrence of each (user_id, event_id) pair, preserve input order, return new
+lists without mutating the input, and accept any iterable, including generators.
+"""

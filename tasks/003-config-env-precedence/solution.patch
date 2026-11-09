@@ -1,0 +1,57 @@
+diff -ruN a/svc/config.py b/svc/config.py
+--- a/svc/config.py
++++ b/svc/config.py
+@@ -22,6 +22,32 @@
+     "log_level": "info",
+ }
+ 
++_TRUE = {"true", "yes", "on", "1"}
++_FALSE = {"false", "no", "off", "0"}
++
++
++def _coerce(key: str, value: Any) -> Any:
++    """Convert `value` to the type of DEFAULTS[key]."""
++    target = type(DEFAULTS[key])
++    # bool must be checked before int: bool is a subclass of int.
++    if target is bool:
++        if isinstance(value, bool):
++            return value
++        text = str(value).strip().lower()
++        if text in _TRUE:
++            return True
++        if text in _FALSE:
++            return False
++        raise ValueError(f"{key}: expected a boolean, got {value!r}")
++    if target is int:
++        if isinstance(value, bool):
++            raise ValueError(f"{key}: expected an integer, got {value!r}")
++        try:
++            return int(str(value).strip())
++        except ValueError:
++            raise ValueError(f"{key}: expected an integer, got {value!r}") from None
++    return target(value)
++
+ 
+ def load(
+     file_values: Optional[Mapping[str, Any]] = None,
+@@ -30,12 +56,15 @@
+     env = os.environ if env is None else env
+     cfg = dict(DEFAULTS)
+ 
+-    for key in cfg:
++    # Lowest to highest precedence, so later layers win.
++    for key, value in (file_values or {}).items():
++        if key not in DEFAULTS:
++            raise KeyError(f"unknown config key {key!r}")
++        cfg[key] = _coerce(key, value)
++
++    for key in DEFAULTS:
+         env_key = "APP_" + key.upper()
+         if env_key in env:
+-            cfg[key] = env[env_key]
+-
+-    if file_values:
+-        cfg.update(file_values)
++            cfg[key] = _coerce(key, env[env_key])
+ 
+     return cfg

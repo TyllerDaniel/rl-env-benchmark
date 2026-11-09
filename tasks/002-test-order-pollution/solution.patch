@@ -1,0 +1,14 @@
+diff -ruN a/shop/pricing.py b/shop/pricing.py
+--- a/shop/pricing.py
++++ b/shop/pricing.py
+@@ -7,7 +7,9 @@
+     """Each calculator owns its own rules; changing one must not affect another."""
+ 
+     def __init__(self, rules=None):
+-        self.rules = rules or DEFAULT_RULES
++        # Copy so with_coupon() never mutates DEFAULT_RULES or the caller's dict.
++        # Check `is None` rather than truthiness: {} means "no rules", not "defaults".
++        self.rules = dict(DEFAULT_RULES if rules is None else rules)
+ 
+     def with_coupon(self, percent_off: float) -> "PriceCalculator":
+         if not 0 <= percent_off < 1:

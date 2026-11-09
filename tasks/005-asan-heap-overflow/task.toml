@@ -1,0 +1,15 @@
+id = "005-asan-heap-overflow"
+title = "Heap overflow in string buffer library"
+category = "memory-safety"
+difficulty = "hard"
+image = "c"
+timeout_s = 90
+prompt = """
+A crash report from production shows an AddressSanitizer
+`heap-buffer-overflow` (a 1-byte write) inside `sb_append` in `src/strbuf.c`.
+Our unit tests and `make asan` both pass, so the bug is not covered yet.
+
+Reproduce the overflow (gcc with -fsanitize=address and gdb are installed),
+find the root cause, and fix it. Keep the public API in `src/strbuf.h`
+unchanged. Adding a regression test to `tests/` is welcome.
+"""

@@ -1,0 +1,15 @@
+id = "003-config-env-precedence"
+title = "Environment overrides ignored in production config"
+category = "devops"
+difficulty = "medium"
+image = "python"
+timeout_s = 60
+prompt = """
+A deploy went out with `APP_DEBUG=false` and `APP_PORT=9000` set in the
+container environment, yet the service started in debug mode on the port from
+`config.toml`. See `svc/config.py`: its docstring documents the intended
+behaviour, and the implementation does not match it.
+
+Make `load()` follow the documented precedence and typing rules. Keep the
+function signature the same.
+"""

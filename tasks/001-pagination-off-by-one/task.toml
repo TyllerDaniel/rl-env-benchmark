@@ -1,0 +1,15 @@
+id = "001-pagination-off-by-one"
+title = "Missing last page in API pagination"
+category = "debugging"
+difficulty = "easy"
+image = "python"
+timeout_s = 60
+prompt = """
+Users report two problems with the paginated list endpoints:
+
+1. The first page shows the wrong items.
+2. When the item count is not an exact multiple of the page size, the last page is missing.
+
+The helpers live in `pager/`. Fix them so pages are 1-indexed and every item appears on exactly one page.
+Keep the public function signatures unchanged. Existing tests are in `tests/`.
+"""

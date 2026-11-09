@@ -1,0 +1,32 @@
+diff -ruN a/src/strbuf.c b/src/strbuf.c
+--- a/src/strbuf.c
++++ b/src/strbuf.c
+@@ -35,7 +35,9 @@
+ int sb_append(strbuf *sb, const char *s)
+ {
+     size_t n = strlen(s);
+-    if (sb_reserve(sb, sb->len + n) != 0)
++    /* +1 for the NUL terminator written below. Without it, appending
++     * exactly enough bytes to fill `cap` writes one byte past the end. */
++    if (sb_reserve(sb, sb->len + n + 1) != 0)
+         return -1;
+     memcpy(sb->data + sb->len, s, n);
+     sb->len += n;
+diff -ruN a/tests/test_strbuf.c b/tests/test_strbuf.c
+--- a/tests/test_strbuf.c
++++ b/tests/test_strbuf.c
+@@ -15,6 +15,14 @@
+     assert(sb.len == 11);
+     sb_free(&sb);
+ 
++    /* Regression: filling the buffer to exactly `cap` bytes must leave room
++     * for the terminator (was a 1-byte heap overflow under ASAN). */
++    assert(sb_init(&sb, 8) == 0);
++    assert(sb_append(&sb, "12345678") == 0);
++    assert(sb.len == 8 && sb.len < sb.cap);
++    assert(strcmp(sb.data, "12345678") == 0);
++    sb_free(&sb);
++
+     puts("all strbuf tests passed");
+     return 0;
+ }

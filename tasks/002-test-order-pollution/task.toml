@@ -1,0 +1,15 @@
+id = "002-test-order-pollution"
+title = "Flaky CI from shared pricing state"
+category = "ci-flake"
+difficulty = "medium"
+image = "python"
+timeout_s = 60
+prompt = """
+CI is flaky. `tests/` passes when run in the default order on a laptop, but on CI,
+where tests are sharded and run in a different order, totals sometimes come out
+discounted by coupons that were never applied to that calculator.
+
+Find and fix the root cause in `shop/pricing.py`. Do not change the tests, pin
+the test order, or add retries. A calculator created with `rules={}` must apply
+no rules at all.
+"""
